@@ -27,7 +27,6 @@ module.exports = (sequelize, Sequelize) => {
     },
     {
       timestamps: true,
-      // Additional indexes for faster queries
       indexes: [
         {
           name: "idx_incidents_severity",

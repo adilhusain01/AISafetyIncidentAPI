@@ -1,7 +1,5 @@
 const winston = require("winston");
-const config = require("../config/logger.config");
 
-// Application logger
 const logger = winston.createLogger({
   level: process.env.NODE_ENV === "production" ? "info" : "debug",
   format: winston.format.combine(
@@ -31,7 +29,6 @@ const logger = winston.createLogger({
   exitOnError: false,
 });
 
-// HTTP request logger
 const httpLogger = {
   stream: {
     write: (message) => {

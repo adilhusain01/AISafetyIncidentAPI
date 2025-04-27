@@ -11,22 +11,18 @@ const incidentRoutes = require("./routes/incident.routes");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Apply middlewares
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
 app.use(morgan("combined", { stream: httpLogger.stream }));
 
-// Routes
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok", message: "Server is running" });
 });
 app.use("/incidents", incidentRoutes);
 
-// Error handling middleware
 app.use(errorHandler);
 
-// Database connection and server start
 db.sequelize
   .sync()
   .then(() => {

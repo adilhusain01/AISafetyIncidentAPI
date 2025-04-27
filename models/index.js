@@ -2,7 +2,6 @@ const dbConfig = require("../config/db.config");
 const Sequelize = require("sequelize");
 const { logger } = require("../utils/logger");
 
-// Create Sequelize instance
 const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
   host: dbConfig.HOST,
   port: dbConfig.PORT,

@@ -4,7 +4,6 @@ const Incident = db.incidents;
 const Redis = require("redis");
 const redisConfig = require("../config/redis.config");
 
-// Initialize Redis client for caching
 let redisClient;
 
 (async () => {
@@ -24,26 +23,20 @@ let redisClient;
     });
   } catch (err) {
     logger.error("Failed to connect to Redis:", err);
-    // Continue without Redis
     redisClient = null;
   }
 })();
 
-// Create and Save a new Incident
 exports.create = async (req, res, next) => {
   try {
-    // Create an incident object from request body
     const incident = {
       title: req.body.title,
       description: req.body.description,
       severity: req.body.severity,
-      // reported_at is set by default
     };
 
-    // Save incident in the database
     const data = await Incident.create(incident);
 
-    // If Redis is available, invalidate incidents cache
     if (redisClient) {
       await redisClient.del("all_incidents");
     }
@@ -56,12 +49,10 @@ exports.create = async (req, res, next) => {
   }
 };
 
-// Retrieve all Incidents from the database
 exports.findAll = async (req, res, next) => {
   try {
     let data;
 
-    // Try to get from cache if Redis is available
     if (redisClient) {
       const cachedData = await redisClient.get("all_incidents");
       if (cachedData) {
@@ -70,10 +61,8 @@ exports.findAll = async (req, res, next) => {
       }
     }
 
-    // Get from database if not in cache
     data = await Incident.findAll();
 
-    // Store in cache for 5 minutes if Redis is available
     if (redisClient) {
       await redisClient.setEx("all_incidents", 300, JSON.stringify(data));
     }
@@ -86,14 +75,12 @@ exports.findAll = async (req, res, next) => {
   }
 };
 
-// Find a single Incident with an id
 exports.findOne = async (req, res, next) => {
   const id = req.params.id;
 
   try {
     let data;
 
-    // Try to get from cache if Redis is available
     if (redisClient) {
       const cachedData = await redisClient.get(`incident_${id}`);
       if (cachedData) {
@@ -102,7 +89,6 @@ exports.findOne = async (req, res, next) => {
       }
     }
 
-    // Get from database if not in cache
     data = await Incident.findByPk(id);
 
     if (!data) {
@@ -113,7 +99,6 @@ exports.findOne = async (req, res, next) => {
       });
     }
 
-    // Store in cache for 5 minutes if Redis is available
     if (redisClient) {
       await redisClient.setEx(`incident_${id}`, 300, JSON.stringify(data));
     }
@@ -126,7 +111,6 @@ exports.findOne = async (req, res, next) => {
   }
 };
 
-// Delete an Incident with the specified id
 exports.delete = async (req, res, next) => {
   const id = req.params.id;
 
@@ -145,7 +129,6 @@ exports.delete = async (req, res, next) => {
       });
     }
 
-    // If Redis is available, invalidate caches
     if (redisClient) {
       await Promise.all([
         redisClient.del(`incident_${id}`),

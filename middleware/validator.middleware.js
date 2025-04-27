@@ -1,6 +1,5 @@
 const { body, param, validationResult } = require("express-validator");
 
-// Validate creation of new incident
 const validateCreateIncident = [
   body("title")
     .notEmpty()
@@ -22,13 +21,11 @@ const validateCreateIncident = [
   validateResults,
 ];
 
-// Validate incident ID parameter
 const validateIncidentId = [
   param("id").isInt().withMessage("Incident ID must be an integer"),
   validateResults,
 ];
 
-// Check validation results
 function validateResults(req, res, next) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
